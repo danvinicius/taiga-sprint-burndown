@@ -29,6 +29,7 @@ export const layoutService = {
     document
       .querySelectorAll("#stories")
       .forEach((element) => element.remove());
+
   },
 
 
@@ -44,12 +45,24 @@ export const layoutService = {
     const largeSummaryWrapper = summary.querySelector(
       ".large-summary-wrapper"
     ) as HTMLDivElement;
+    const toggleTotalPoints = summary.querySelector(
+      ".summary-stats.toggle-points-per-role"
+    ) as HTMLDivElement;
+    const iconTotalPoints = toggleTotalPoints.querySelector(
+      "tg-svg"
+    ) as HTMLDivElement;
     largeSummaryWrapper.appendChild(toggleAnalyticsWrapper);
     const classesToRemove = [
       ".summary-stats.summary-iocaine",
       ".summary-stats.summary-open-tasks",
       ".points-per-role-stats",
+      ".taskboard-table-options-end",
     ];
+
+    if (toggleTotalPoints) {
+      toggleTotalPoints.style.pointerEvents = "none";
+      iconTotalPoints.remove();
+    };
 
     classesToRemove.forEach((classToRemove) => {
       const element = document.querySelector(classToRemove);
@@ -79,7 +92,16 @@ export const layoutService = {
     }
   },
 
-
+  setViewType() {
+    const labels = document.querySelectorAll(".board-zoom label");
+  
+    labels.forEach(label => {
+      if (label.getAttribute("ng-attr-title") === "{{ 'ZOOM.ZOOM-3' | translate }}") {
+        (label as HTMLElement).click();
+      }
+    });
+  },
+  
   /**
    * Renderiza todas as informações da extensão da interface.
    * @param summaryData Objeto contendo os dados necessários para exibição das informações.
