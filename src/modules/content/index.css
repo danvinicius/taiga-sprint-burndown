@@ -6,18 +6,38 @@
 }
 
 .sprint-burndown__members {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
   color: #4c566a;
   font-size: 14px;
   border-collapse: collapse;
+  width: max-content;
 }
 
-.sprint-burndown__members td {
-  padding: 0 .5rem .5rem 0;
-}
-
-.sprint-burndown__members tr {
+.sprint-burndown__members li {
   display: flex;
-  align-items: center;
+  gap: .25rem;
+}
+
+.sprint-burndown__members li div {
+  display: flex;
+  gap: .25rem;
+  flex-direction: column;
+}
+
+.sprint-burndown__members li div p {
+  margin: 0;
+}
+
+.sprint-burndown__members li div p:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.sprint-burndown__members li div p:last-child small {
+  font-size: 10px;
+  color: rgb(76, 86, 106);
 }
 
 .sprint-burndown__members img {
@@ -34,7 +54,6 @@
   gap: 1rem;
   row-gap: .5rem;
   max-height: 100px;
-  flex-wrap: wrap;
   max-height: 100px;
   font-size: 14px;
   color: #4c566a;
@@ -46,6 +65,7 @@
   padding: 1rem;
   display: flex;
   gap: 5rem;
+  flex-wrap: wrap;
 }
 
 .sprint-burndown__members-external-wrapper{
@@ -61,6 +81,12 @@
   font-size: 10px;
   padding-top: 1rem;
   color: #4c566a;
+}
+
+.sprint-burndown__chart-wrapper {
+  flex: 1;
+  padding: 0px;
+  position: relative;
 }
 
 .taskboard-row .sprint-burndown__stories-info {
@@ -95,4 +121,8 @@ CLEARING OLD TAIGA DATA
 
 .stats.toggle-analytics-visibility {
   margin-left: 0;
+}
+
+.summary-stats.summary-move-unfinished {
+  border-right: none !important;
 }

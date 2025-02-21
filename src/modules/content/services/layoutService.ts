@@ -1,6 +1,8 @@
 import { MemberTaskInfo } from "../../../interfaces/Member";
 import { SummaryData } from "../../../interfaces/SummaryData";
+import { generateChartData } from "../helpers/charts/generateChart";
 import { checkNaN } from "../helpers/checkNaN";
+import { elementsToKillAndExplode } from "../helpers/consts";
 
 /**
  * Serviço responsável por manipular elementos do layout da interface.
@@ -12,17 +14,8 @@ export const layoutService = {
    * Remove elementos específicos do DOM pelo ID para limpar os dados da extensão caso já estejam na tela.
    */
   clearElements() {
-    const idsToRemove = [
-      "#duration",
-      "#total-hr-wrapper",
-      "#qtd-new-hr-wrapper",
-      "#qtd-total",
-      "#qtd-new",
-      "#qtd-new-hr",
-      "#members-info-wrapper",
-    ];
-    idsToRemove.forEach((id) => {
-      const element = document.querySelector(id);
+    elementsToKillAndExplode.forEach((identifier) => {
+      const element = document.querySelector(identifier);
       if (element) element.remove();
     });
 
@@ -57,6 +50,7 @@ export const layoutService = {
       ".summary-stats.summary-open-tasks",
       ".points-per-role-stats",
       ".taskboard-table-options-end",
+      ".toggle-analytics-visibility"
     ];
 
     if (toggleTotalPoints) {
@@ -143,7 +137,10 @@ export const layoutService = {
 
     const membersAndTasksWrapper = layoutService.createMembersAndTasksWrapper(
       aggregatedMembersInfo,
-      totalTypes
+      totalTypes,
+      duration,
+      totalHR,
+      totalClosedHR
     );
 
     const taskboardInner = document.querySelector(".taskboard-inner");
@@ -153,6 +150,15 @@ export const layoutService = {
     );
   },
 
+  createChartCanvas(duration: string, totalHR: string, totalClosedHR: string) {
+    const chartCanvas = generateChartData({
+      duration,
+      totalHR,
+      totalClosed: totalClosedHR,
+    });
+
+    return chartCanvas;
+  },
 
   /**
    * Cria um wrapper que agrupa informações de membros e tarefas.
@@ -162,19 +168,24 @@ export const layoutService = {
    */
   createMembersAndTasksWrapper: (
     aggregatedMembersInfo: MemberTaskInfo[],
-    totalTypes: Record<string, number>
+    totalTypes: Record<string, number>,
+    duration: string,
+    totalHR: string,
+    totalClosedHR: string
   ) => {
     const membersInfoWrapper = layoutService.createMembersInfoWrapper(
       aggregatedMembersInfo
     );
 
     const totalTasksWrapper = layoutService.createTotalTasksWrapper(totalTypes);
+    const chartCanva =  layoutService.createChartCanvas(duration, totalHR, totalClosedHR)
 
     const internalWrapper = document.createElement("div");
     internalWrapper.className = "sprint-burndown__members-internal-wrapper";
 
     internalWrapper.appendChild(membersInfoWrapper);
     internalWrapper.appendChild(totalTasksWrapper);
+    internalWrapper.appendChild(chartCanva);
 
     const membersAndTasksWrapper = document.createElement("div");
     membersAndTasksWrapper.className =
@@ -196,13 +207,24 @@ export const layoutService = {
     title.className = "sprint-burndown__title";
     title.textContent = "Membros";
 
-    const table = document.createElement("table");
-    table.className = "sprint-burndown__members";
-    layoutService.fillMembersTable(table, aggregatedMembersInfo);
+    const list = document.createElement("ul");
+    list.className = "sprint-burndown__members";
+    list.innerHTML = aggregatedMembersInfo
+    .map((member) => `<li>
+    <img src="${member.img}" alt="${member.name}" title="${member.name}" />
+    <div>
+      <p>${member.name}<p>
+      <small>${member.closedHours}H / ${member.assignedHours}H</small>
+      <small>${member.closedTasks} / ${member.assignedTasks} tasks</small>
+      <small>${member.hoursPerDay}H / Day</small>
+    </div>
+    </li>`)
+    .join("");
 
     const wrapper = document.createElement("div");
+    wrapper.id = "members-info-wrapper";
     wrapper.appendChild(title);
-    wrapper.appendChild(table);
+    wrapper.appendChild(list);
 
     return wrapper;
   },
@@ -224,7 +246,7 @@ export const layoutService = {
       .join("");
 
     const wrapper = document.createElement("div");
-    wrapper.id = "qtd-total";
+    wrapper.id = "qtd-total-wrapper";
     const totalOfTotalTypes = Object.values(totalTypes).reduce(
       (acc, curr) => acc + curr,
       0
@@ -344,39 +366,5 @@ export const layoutService = {
     const totalClosedWrapper = document.querySelector(".summary-closed-tasks");
     const totalClosedNumber = totalClosedWrapper.childNodes[0] as HTMLElement;
     totalClosedNumber.innerText = `${totalClosed}`;
-  },
-
-  /**
-   * Preenche uma tabela HTML com informações dos membros.
-   * @param table Tabela HTML onde os dados serão inseridos.
-   * @param membersInfo Informações dos membros a serem preenchidas.
-   */
-  fillMembersTable(
-    table: HTMLTableElement,
-    membersInfo: MemberTaskInfo[]
-  ): void {
-    membersInfo.forEach((member) => {
-      const row = document.createElement("tr");
-
-      const memberImageCell = document.createElement("td");
-      memberImageCell.innerHTML = `<img src="${member.img}" alt="${member.member}" title="${member.member}" />`;
-      row.appendChild(memberImageCell);
-
-      const memberCell = document.createElement("td");
-      memberCell.textContent = `${member.member}: `;
-      row.appendChild(memberCell);
-
-      const hoursCell = document.createElement("td");
-      hoursCell.textContent = `${member.closedHours}H / ${member.assignedHours}H`;
-      row.appendChild(hoursCell);
-
-      const tasksCell = document.createElement("td");
-      tasksCell.textContent = `(${member.closedTasks.toString()} / ${member.assignedTasks.toString()} tasks) | ${
-        member.hoursPerDay
-      }H Day`;
-      row.appendChild(tasksCell);
-
-      table.appendChild(row);
-    });
   },
 };

@@ -19,7 +19,7 @@ a fazer
 - [x] Gerar report de forma automática
 
 **V0.4**
-- [ ] Adicionar gráfico
+- [x] Adicionar gráfico
 - [ ] armazenar sprint diarios
 
 **V0.5**
