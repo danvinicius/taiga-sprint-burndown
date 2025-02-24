@@ -22,7 +22,6 @@ export const layoutService = {
     document
       .querySelectorAll("#stories")
       .forEach((element) => element.remove());
-
   },
 
 
@@ -44,7 +43,9 @@ export const layoutService = {
     const iconTotalPoints = toggleTotalPoints.querySelector(
       "tg-svg"
     ) as HTMLDivElement;
-    largeSummaryWrapper.appendChild(toggleAnalyticsWrapper);
+    if (largeSummaryWrapper && toggleAnalyticsWrapper) {
+      largeSummaryWrapper.appendChild(toggleAnalyticsWrapper);
+    }
     const classesToRemove = [
       ".summary-stats.summary-iocaine",
       ".summary-stats.summary-open-tasks",
@@ -53,7 +54,7 @@ export const layoutService = {
       ".toggle-analytics-visibility"
     ];
 
-    if (toggleTotalPoints) {
+    if (toggleTotalPoints && iconTotalPoints) {
       toggleTotalPoints.style.pointerEvents = "none";
       iconTotalPoints.remove();
     };
